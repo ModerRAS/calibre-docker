@@ -1,6 +1,13 @@
-FROM python:2-alpine3.9
+FROM ubuntu:latest
 
-RUN apk add --no-cache imagemagick && \
-    wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py | python2 -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
+RUN apt-get update -y \
+  && apt-get install -y calibre \
+  && apt-get clean \
+  && rm -rf /var/cache/apt/* /var/lib/apt/lists/*
 
-CMD ["calibre-server", "--with-library", "/calibre-library"]
+EXPOSE 8080
+
+RUN mkdir /opt/calibre && mkdir /opt/calibre/library
+
+VOLUME ["/opt/calibre/library"]
+ENTRYPOINT ["/usr/bin/calibre-server", "/opt/calibre/library"]
